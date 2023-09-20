@@ -1,1 +1,3 @@
-﻿Console.WriteLine("placeholder");
+﻿using Cassandra;
+
+var cluster = Cluster.Builder().Build();
