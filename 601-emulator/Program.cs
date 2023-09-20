@@ -1,11 +1,12 @@
-﻿using System.Net.Security;
-using System.Security.Authentication;
+﻿// <imports>
 using Cassandra;
+// </imports>
 
+// <client>
 var options = new SSLOptions(
-    sslProtocol: SslProtocols.Tls12,
+    sslProtocol: System.Security.Authentication.SslProtocols.Tls12,
     checkCertificateRevocation: true,
-    remoteCertValidationCallback: (_, _, _, policyErrors) => policyErrors == SslPolicyErrors.None);
+    remoteCertValidationCallback: (_, _, _, policyErrors) => policyErrors == System.Net.Security.SslPolicyErrors.None);
 
 using var cluster = Cluster.Builder()
     .WithCredentials(
@@ -24,13 +25,17 @@ using var cluster = Cluster.Builder()
     .Build();
 
 using var session = cluster.Connect();
+// </client>
 
+// <resources>
 var createKeyspace = await session.PrepareAsync("CREATE KEYSPACE IF NOT EXISTS cosmicworks WITH replication = {'class':'basicclass', 'replication_factor': 1};");
 await session.ExecuteAsync(createKeyspace.Bind());
 
 var createTable = await session.PrepareAsync("CREATE TABLE IF NOT EXISTS cosmicworks.products (id text PRIMARY KEY, name text)");
 await session.ExecuteAsync(createTable.Bind());
+// </resources>
 
+// <insert>
 var item = new
 {
     id = "68719518371",
@@ -42,3 +47,4 @@ var createItem = await session.PrepareAsync("INSERT INTO cosmicworks.products (i
 var createItemStatement = createItem.Bind(item.id, item.name);
 
 await session.ExecuteAsync(createItemStatement);
+// </insert>
